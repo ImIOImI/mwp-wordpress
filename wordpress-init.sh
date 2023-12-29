@@ -58,6 +58,10 @@ if [ ! -f $${LOCK_FILE} -a "$${SHORT_NAME}" == "$${FIRST_SERVER}" ]; then
   find /var/www -type f -exec sudo chmod 0664 {} \;
 	rm -rf latest.tar.gz
 
+WP_CONFIG_CONTENT=<<EOF
+
+EOF
+
 else
 	echo "$(date) :: Lock is acquired by another server"  >> /var/log/user-data-status.txt
 fi

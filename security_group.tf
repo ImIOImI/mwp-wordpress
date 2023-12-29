@@ -6,9 +6,9 @@ module "db_sg" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "4.9.0"
 
-  name        = "${var.prefix}-${var.environment}-db-sg"
+  name        = "${var.prefix}-${var.env}-db-sg"
   description = "MySQL Security Group"
-  vpc_id      = module.vpc.vpc_id
+  vpc_id      = local.vpc_id
 
   # ingress
   ingress_with_cidr_blocks = [
@@ -17,7 +17,7 @@ module "db_sg" {
       to_port     = 3306
       protocol    = "tcp"
       description = "MySQL access from within VPC"
-      cidr_blocks = module.vpc.vpc_cidr_block
+      cidr_blocks = var.vpc_cidr
     },
   ]
   tags = var.tags
@@ -27,12 +27,12 @@ module "efs_sg" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "4.9.0"
 
-  name        = "${var.prefix}-${var.environment}-efs-sg"
+  name        = "${var.prefix}-${var.env}-efs-sg"
   description = "EFS Security Group"
-  vpc_id      = module.vpc.vpc_id
+  vpc_id      = local.vpc_id
 
   # ingress
-  ingress_cidr_blocks = [module.vpc.vpc_cidr_block]
+  ingress_cidr_blocks = [var.vpc_cidr]
   ingress_rules       = ["all-all"]
 
   tags = var.tags
@@ -42,9 +42,9 @@ module "ssh_sg" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "4.9.0"
 
-  name        = "${var.prefix}-${var.environment}-ssh-sg"
+  name        = "${var.prefix}-${var.env}-ssh-sg"
   description = "SSH Security Group"
-  vpc_id      = module.vpc.vpc_id
+  vpc_id      = local.vpc_id
 
   # ingress
   ingress_with_cidr_blocks = [
@@ -60,7 +60,7 @@ module "ssh_sg" {
       from_port   = 0
       to_port     = 65535
       protocol    = "tcp"
-      cidr_blocks = module.vpc.vpc_cidr_block
+      cidr_blocks = var.vpc_cidr
     },
   ]
 
@@ -75,23 +75,23 @@ module "http_sg" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "4.9.0"
 
-  name        = "${var.prefix}-${var.environment}-http-sg"
+  name        = "${var.prefix}-${var.env}-http-sg"
   description = "Frontend Security Group"
-  vpc_id      = module.vpc.vpc_id
+  vpc_id      = local.vpc_id
 
   ingress_with_cidr_blocks = [
     {
       from_port   = 443
       to_port     = 443
       protocol    = "tcp"
-      description = "${var.environment}-https to ELB"
+      description = "${var.env}-https to ELB"
       cidr_blocks = "0.0.0.0/0"
     },
     {
       from_port   = 80
       to_port     = 80
       protocol    = "tcp"
-      description = "${var.environment}-http to ELB"
+      description = "${var.env}-http to ELB"
       cidr_blocks = "0.0.0.0/0"
     }
   ]
@@ -103,7 +103,7 @@ module "http_sg" {
       from_port   = 0
       to_port     = 65535
       protocol    = "tcp"
-      cidr_blocks = module.vpc.vpc_cidr_block
+      cidr_blocks = var.vpc_cidr
     },
   ]
 

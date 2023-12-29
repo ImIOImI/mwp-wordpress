@@ -1,14 +1,18 @@
-##################################################################
-# RDS MySQL Instance
-##################################################################
+locals {
+  db_instance_name = "${var.prefix}-wp-mysql"
+}
+
+###################################################################
+## RDS MySQL Instance
+###################################################################
 module "db" {
   source  = "terraform-aws-modules/rds/aws"
-  version = "5.0.0"
+  version = "6.3.0"
 
-  identifier = "${var.prefix}-${var.environment}-db"
+  identifier = "${var.prefix}-${var.env}-db"
 
   engine                    = var.rds_engine
-  engine_version            = var.rds_engine_version
+  major_engine_version      = var.rds_engine_major_version
   create_db_parameter_group = "false"
   create_db_option_group    = "false"
   skip_final_snapshot       = "true"
@@ -18,11 +22,30 @@ module "db" {
   max_allocated_storage = 10
 
   username = "admin"
-  db_name  = "wordpressdb"
+  db_name  = var.db_name
+  password = random_password.master.result
 
-  db_subnet_group_name   = module.vpc.database_subnet_group_name
+  db_subnet_group_name   = local.db_subnet_group_name
   multi_az               = "true"
-  subnet_ids             = module.vpc.database_subnets
+  subnet_ids             = local.db_subnet_ids
   vpc_security_group_ids = [module.db_sg.security_group_id]
   tags                   = var.tags
+}
+
+
+################################################################################
+# Supporting Resources
+################################################################################
+
+resource "random_password" "master" {
+  length = 10
+}
+
+data "aws_rds_engine_version" "version" {
+  engine  = "mariadb"
+  version = "10.11.6"
+}
+
+output "rds_version" {
+  value = data.aws_rds_engine_version.version
 }

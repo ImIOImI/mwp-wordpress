@@ -5,17 +5,17 @@ module "wp-asg" {
   source  = "terraform-aws-modules/autoscaling/aws"
   version = "6.3.0"
 
-  name                      = "${var.prefix}-${var.environment}-asg"
-  instance_name             = "${var.prefix}-${var.environment}-web"
+  name                      = "${var.prefix}-${var.env}-asg"
+  instance_name             = "${var.prefix}-${var.env}-web"
   min_size                  = var.asg_min_size
   max_size                  = var.asg_max_size
   desired_capacity          = var.asg_desired_capacity
   wait_for_capacity_timeout = 0
   health_check_type         = "ELB"
-  vpc_zone_identifier       = module.vpc.public_subnets
+  vpc_zone_identifier       = local.public_subnet_ids
 
   # Launch Template
-  launch_template_name        = "${var.prefix}-${var.environment}-lt"
+  launch_template_name        = "${var.prefix}-${var.env}-lt"
   launch_template_description = var.asg_launch_template_description
   update_default_version      = true
   image_id                    = data.aws_ami.amazon_linux.id
@@ -25,7 +25,7 @@ module "wp-asg" {
   user_data = base64encode(templatefile("${path.module}/wordpress-init.sh",
     {
       vars = {
-        efs_dns_name = "${resource.aws_efs_file_system.efs.dns_name}"
+        efs_dns_name = "${aws_efs_file_system.efs.dns_name}"
       }
   }))
   tag_specifications = [
@@ -48,14 +48,14 @@ module "wp-asg" {
   scaling_policies = {
     scale-up = {
       policy_type        = "SimpleScaling"
-      name               = "${var.prefix}-${var.environment}-cpu-scale-up"
+      name               = "${var.prefix}-${var.env}-cpu-scale-up"
       scaling_adjustment = 1
       adjustment_type    = "ChangeInCapacity"
       cooldown           = "500"
     },
     scale-down = {
       policy_type        = "SimpleScaling"
-      name               = "${var.prefix}-${var.environment}-cpu-scale-down"
+      name               = "${var.prefix}-${var.env}-cpu-scale-down"
       scaling_adjustment = "-1"
       adjustment_type    = "ChangeInCapacity"
       cooldown           = "500"
@@ -64,10 +64,20 @@ module "wp-asg" {
 
   tags = var.tags
 
-  depends_on = [resource.aws_efs_mount_target.efs_target]
+  depends_on = [aws_efs_mount_target.efs_target]
 }
 
 ## Delay to allow time to initialize EC2
 resource "time_sleep" "wait_180_seconds" {
   create_duration = "180s"
+}
+
+resource "tls_private_key" "example" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "aws_key_pair" "generated_key" {
+  key_name   = var.ssh_key_name
+  public_key = tls_private_key.example.public_key_openssh
 }
