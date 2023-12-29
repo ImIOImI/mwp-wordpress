@@ -5,6 +5,7 @@ locals {
 ###################################################################
 ## RDS MySQL Instance
 ###################################################################
+# https://github.com/terraform-aws-modules/terraform-aws-rds
 module "db" {
   source  = "terraform-aws-modules/rds/aws"
   version = "6.3.0"

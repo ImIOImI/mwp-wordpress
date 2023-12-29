@@ -7,13 +7,17 @@ resource "aws_route53_record" "www_alb_cname_record" {
   name    = "www.${var.domain_name}"
   type    = "CNAME"
   ttl     = "60"
-  records = [module.alb.lb_dns_name]
+  records = [local.alb_dns_name]
 }
 
-resource "aws_route53_record" "alb_cname_record" {
+resource "aws_route53_record" "www" {
   zone_id = data.aws_route53_zone.primary.zone_id
   name    = var.domain_name
-  type    = "CNAME"
-  ttl     = "60"
-  records = [module.alb.lb_dns_name]
+  type    = "A"
+
+  alias {
+    name                   = local.alb_dns_name
+    zone_id                = local.alb_zone_id
+    evaluate_target_health = true
+  }
 }
