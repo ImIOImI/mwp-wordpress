@@ -1,7 +1,12 @@
 ###############################################################
 # Security Group
 ###############################################################
-
+locals {
+  #### SHARED ####
+  efs_security_group_id = module.efs_sg.security_group_id
+  ssh_security_group_id = module.ssh_sg.security_group_id
+  db_security_group_id  = module.db_sg.security_group_id
+}
 module "db_sg" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "4.9.0"

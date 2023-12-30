@@ -2,12 +2,13 @@
 
 config-map-aws-auth_*.yaml
 kubeconfig_*
-.terraform
+terraform/.terraform
 local
 .idea
 
 # use other *.tfvars files for parametrization of config-modules
 terraform.tfvars
+.terraform.lock.hcl
 *.tfstate*
 
 # direnv.net config
@@ -23,7 +24,7 @@ ehthumbs.db
 Thumbs.db
 ### Terraform template
 # Local .terraform directories
-.terraform/*
+**/.terraform/*
 
 # .tfstate files
 *.tfstate
@@ -57,5 +58,5 @@ override.tf.json
 .terraformrc
 terraform.rc
 
-secret.txt
+terraform/secret.txt
 secret.sh

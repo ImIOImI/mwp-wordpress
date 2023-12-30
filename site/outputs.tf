@@ -11,11 +11,7 @@ output "alb_dns_name" {
 output "ec2_ssh_IP" {
   value       = data.aws_instances.wp-web.public_ips
   sensitive   = false
-  description = "EC2 Pulic IP for SSH"
-}
-
-output "alb" {
-  value = module.alb
+  description = "EC2 Public IP for SSH"
 }
 
 output "DB_Username" {

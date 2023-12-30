@@ -1,7 +1,13 @@
 ####################################################################
-# AutoSacling Group
+# AutoScaling Group
 ####################################################################
-module "wp-asg" {
+locals {
+  #### SHARED ####
+  asg_autoscaling_policy_arns_scale_up   = module.asg.autoscaling_policy_arns.scale-up
+  asg_autoscaling_policy_arns_scale_down = module.asg.autoscaling_policy_arns.scale-down
+  asg_autoscaling_group_name             = module.asg.autoscaling_group_name
+}
+module "asg" {
   source  = "terraform-aws-modules/autoscaling/aws"
   version = "6.3.0"
 
@@ -20,14 +26,18 @@ module "wp-asg" {
   update_default_version      = true
   image_id                    = data.aws_ami.amazon_linux.id
   instance_type               = var.asg_instance_type
-  target_group_arns           = module.alb.target_group_arns
+  target_group_arns           = local.alb_target_group_arns
   key_name                    = var.ssh_key_name
-  user_data = base64encode(templatefile("${path.module}/wordpress-init.sh",
+  user_data                   = base64encode(templatefile("${path.module}/wordpress-init.sh",
     {
       vars = {
-        efs_dns_name = "${aws_efs_file_system.efs.dns_name}"
+        efs_dns_name = local.efs_dns_name
+        DB_NAME      = local.db_name
+        DB_USERNAME  = local.db_username
+        DB_PASSWORD  = local.db_password
+        DB_HOST      = local.db_connection_string
       }
-  }))
+    }))
   tag_specifications = [
     {
       resource_type = "instance"
@@ -40,7 +50,7 @@ module "wp-asg" {
       delete_on_termination       = true
       description                 = "eth0"
       device_index                = 0
-      security_groups             = [module.ssh_sg.security_group_id]
+      security_groups             = [local.ssh_security_group_id]
       associate_public_ip_address = true
     }
   ]
@@ -72,12 +82,12 @@ resource "time_sleep" "wait_180_seconds" {
   create_duration = "180s"
 }
 
-resource "tls_private_key" "example" {
+resource "tls_private_key" "key" {
   algorithm = "RSA"
   rsa_bits  = 4096
 }
 
 resource "aws_key_pair" "generated_key" {
   key_name   = var.ssh_key_name
-  public_key = tls_private_key.example.public_key_openssh
+  public_key = tls_private_key.key.public_key_openssh
 }

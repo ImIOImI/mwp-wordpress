@@ -37,5 +37,8 @@ data "aws_instances" "wp-web" {
     values = ["${var.prefix}-${var.env}-key"]
   }
   instance_state_names = ["running"]
-  depends_on           = [module.wp-asg, resource.time_sleep.wait_180_seconds]
+  depends_on           = [
+    module.asg,
+    resource.time_sleep.wait_180_seconds
+  ]
 }

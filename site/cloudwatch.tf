@@ -12,10 +12,10 @@ resource "aws_cloudwatch_metric_alarm" "scale-up-cpu-alarm" {
   statistic           = "Average"
   threshold           = "80"
   dimensions = {
-    "AutoScalingGroupName" = "${module.wp-asg.autoscaling_group_name}"
+    "AutoScalingGroupName" = local.asg_autoscaling_group_name
   }
   actions_enabled = true
-  alarm_actions   = ["${module.wp-asg.autoscaling_policy_arns.scale-up}"]
+  alarm_actions   = [local.asg_autoscaling_policy_arns_scale_up]
   tags            = var.tags
 }
 
@@ -31,9 +31,9 @@ resource "aws_cloudwatch_metric_alarm" "scale-down-cpu-alarm" {
   statistic           = "Average"
   threshold           = "30"
   dimensions = {
-    "AutoScalingGroupName" = "${module.wp-asg.autoscaling_group_name}"
+    "AutoScalingGroupName" = local.asg_autoscaling_group_name
   }
   actions_enabled = true
-  alarm_actions   = ["${module.wp-asg.autoscaling_policy_arns.scale-down}"]
+  alarm_actions   = [local.asg_autoscaling_policy_arns_scale_down]
   tags            = var.tags
 }

@@ -1,11 +1,12 @@
 locals {
   private_azs = slice(data.aws_availability_zones.this.names, 0, length(var.private_subnet_cidrs))
-  region = "us-east-1"
+  region      = "us-east-1"
 
-  tags = {
-    app = "wordpress"
-    env = var.env
-  }
+  tags = merge({
+    app     = var.prefix
+    env     = var.env
+    managed = "terraform"
+  }, var.additional-tags)
 }
 
 output "private_azs" {

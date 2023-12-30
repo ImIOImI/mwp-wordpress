@@ -3,8 +3,10 @@
 ####################################################################
 # https://github.com/terraform-aws-modules/terraform-aws-alb
 locals {
-  alb_dns_name = module.alb.lb_dns_name
-  alb_zone_id  = module.alb.lb_zone_id
+  #### SHARED ####
+  alb_dns_name          = module.alb.lb_dns_name
+  alb_zone_id           = module.alb.lb_zone_id
+  alb_target_group_arns = module.alb.target_group_arns
 }
 
 module "alb" {

@@ -58,9 +58,20 @@ if [ ! -f $${LOCK_FILE} -a "$${SHORT_NAME}" == "$${FIRST_SERVER}" ]; then
   find /var/www -type f -exec sudo chmod 0664 {} \;
 	rm -rf latest.tar.gz
 
+# Create a wp-config file
 WP_CONFIG_CONTENT=<<EOF
-
+// ** MySQL settings - You can get this info from your web host ** //
+/** The name of the database for WordPress */
+define( 'DB_NAME', '${vars.DB_NAME}' );
+/** MySQL database username */
+define( 'DB_USER', '${vars.DB_USERNAME}' );
+/** MySQL database password */
+define( 'DB_PASSWORD', '${vars.DB_PASSWORD}' );
+/** MySQL hostname */
+define( 'DB_HOST', '${vars.DB_HOST}' );
 EOF
+
+cat $WP_CONFIG_CONTENT > $WP_CONFIG_FILE
 
 else
 	echo "$(date) :: Lock is acquired by another server"  >> /var/log/user-data-status.txt

@@ -1,10 +1,10 @@
-variable "tags" {
-  description = "AWS Tags to add to all resources created (where possible); see https://aws.amazon.com/answers/account-management/aws-tagging-strategies/"
+variable "additional-tags" {
+  description = <<EOF
+    AWS Tags to add to all resources created (where possible); see
+    https://aws.amazon.com/answers/account-management/aws-tagging-strategies/"
+  EOF
   type        = map(any)
-  default     = {
-    app         = "wordpress",
-    environment = "prod"
-  }
+  default     = {}
 }
 
 variable "env" {
@@ -13,8 +13,20 @@ variable "env" {
   default     = "prd"
 }
 
+variable "enable_route53" {
+  description = <<EOF
+    Set this to true if you don't have a domain to hook route53 up to your ALB and/or you don't want to pay money to
+    register a site. You can just use the ALB DNS Name supplied in the outputs"
+  EOF
+  type = bool
+  default = true
+}
+
 variable "prefix" {
-  description = "Prefix for all the resources to be created. Please note thst 2 allows only lowercase alphanumeric characters and hyphen"
+  description = <<EOF
+    Prefix for all the resources to be created. Please note that aws allows only lowercase alphanumeric characters
+    and hyphens"
+  EOF
   default     = "wordpress"
 }
 
@@ -60,15 +72,9 @@ variable "database_subnet_cidrs" {
 variable "domain_name" {
   description = "Domain name without www"
   type        = string
-  default     = "madwithpower.net"
+  default     = "example.net"
 }
 
-variable "domain_auto_renew" {
-  description = "Whether or not you want the domain to auto-renew"
-  type        = bool
-  default     = false
-}
-#
 variable "asg_instance_type" {
   description = "AutoScaling Group Instance type"
   default     = "t3.micro"
@@ -112,30 +118,7 @@ variable "db_name" {
   description = "Name of the db for wordpress"
   default     = "wordpressdb"
 }
-#
-#variable "site_domain" {
-#  description = "Domain"
-#  default     = "example.com"
-#}
-#
-#variable "cloudflare_zone" {
-#  description = "cloudflare Zone Id"
-#}
-#
-#variable "dns_ttl" {
-#  description = "cloudflare for dns = 1 is automatic."
-#  default     = 1
-#}
-#
-#variable "dns_allow_overwrite_records" {
-#  description = "cloudflare allow overwrite records."
-#  default     = true
-#}
-#
-#variable "cloudflare_api_token" {
-#  description = "cloudflare api token"
-#}
-#
+
 variable "ssh_key_name" {
   description = "SSH Key"
   default     = "wp-asg-key"
